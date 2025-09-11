@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<body>
+  <h2>ML Cloud Deploy Demo</h2>
+  <textarea id="text" rows="5" cols="50">I love hockey</textarea><br>
+  <button onclick="predict()">Predict</button>
+  <pre id="output"></pre>
+  <script>
+    async function predict(){
+      const text = document.getElementById('text').value;
+      const res = await fetch('/predict', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({text})
+      });
+      const data = await res.json();
+      document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
