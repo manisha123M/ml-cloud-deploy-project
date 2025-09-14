@@ -1,34 +1,21 @@
-from sklearn.pipeline import Pipeline
+import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.datasets import fetch_20newsgroups
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.naive_bayes import MultinomialNB
 import joblib
 
 # Load dataset
-categories = ['rec.autos', 'rec.sport.hockey']
-data = fetch_20newsgroups(subset='train', categories=categories, remove=('headers','footers','quotes'))
-X, y = data.data, data.target
+df = pd.read_csv("data.csv")
 
-# Split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X, y = df["text"], df["label"]
 
-# Train pipeline
-pipeline = Pipeline([
-    ('tfidf', TfidfVectorizer(stop_words='english', max_features=5000)),
-    ('clf', LogisticRegression(max_iter=1000))
-])
+# Vectorize text
+vectorizer = TfidfVectorizer()
+X_vec = vectorizer.fit_transform(X)
 
-pipeline.fit(X_train, y_train)
-preds = pipeline.predict(X_test)
+# Train Naive Bayes model
+model = MultinomialNB()
+model.fit(X_vec, y)
 
-print("Accuracy:", accuracy_score(y_test, preds))
-
-# Save model
-joblib.dump({
-    "model": pipeline,
-    "target_names": data.target_names
-}, "model.joblib")
-
-print("Model saved as model.joblib")
+# Save model + vectorizer
+joblib.dump({"model": model, "vectorizer": vectorizer}, "model.joblib")
+print("✅ Model trained and saved as model.joblib")
